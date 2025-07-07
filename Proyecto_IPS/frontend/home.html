@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supervision fraude combustible</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="css/home.css" />
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supervisión fraude combustible</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  </head>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Selecciona el enlace de Alertas
+  const alertLink = document.querySelector('a[href="#alerts"]');
+  if (alertLink) {
+    alertLink.addEventListener("click", function(e) {
+      e.preventDefault(); // Evita la navegación por defecto
+      Swal.fire({
+        title: "¡Alerta de anomalía detectada!",
+        text: "Se ha detectado una anomalía en el consumo de combustible. Revisa el reporte para más detalles.",
+        icon: "warning",
+        confirmButtonText: "Ver reporte"
+      });
+    });
+  }
+</script>
+  <body>
+    
+    <!-- Elementos de fondo -->
+    <div class="background">
+      <div class="hexagon-container"></div>
+      <div class="light-effect"></div>
+      <div class="gas-bubbles">
+        <!-- Burbujas agregadas con JavaScript -->
+      </div>
+    </div>
+
+    <!-- Animación de gotas de combustible -->
+    <div class="fuel-animation">
+      <div class="fuel-droplet" style="left: 10%; animation-delay: 0s"></div>
+      <div class="fuel-droplet" style="left: 25%; animation-delay: 2s"></div>
+      <div class="fuel-droplet" style="left: 40%; animation-delay: 1s"></div>
+      <div class="fuel-droplet" style="left: 65%; animation-delay: 3s"></div>
+      <div class="fuel-droplet" style="left: 80%; animation-delay: 0.5s"></div>
+      <div class="fuel-droplet" style="left: 90%; animation-delay: 2.5s"></div>
+    </div>
+
+    <!-- Iconos de indicadores de combustible -->
+    <div class="gauge-icons">
+      <i class="fas fa-gas-pump"></i>
+    </div>
+    <div
+      class="gauge-icons"
+      style="top: 100px; right: 120px; animation-delay: 1s">
+      <i class="fas fa-tachometer-alt"></i>
+    </div>
+    <div
+      class="gauge-icons"
+      style="top: 150px; right: 80px; animation-delay: 2s">
+      <i class="fas fa-oil-can"></i>
+    </div>
+
+    <div class="container">
+      <header>
+        <div class="logo">
+          <i class="fas fa-gas-pump"></i> Monitoreo de combustible
+        </div>
+        <nav>
+          <ul>
+<li><a href="panel.html" id="panelPrincipalLink">Panel principal</a></li>            <li><a href="#nearby">Análisis anteriores</a></li>
+            <li><a href="#history">Historial</a></li>
+            <li><a href="#alerts">Alertas</a></li>
+          </ul>
+          <div class="user-controls">
+            <div class="icon">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="icon">
+              <i class="fas fa-sign-out-alt"></i>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <section class="live-fuel-monitoring">
+        <h2>Resumen del Panel</h2>
+<!-- ...código existente... -->
+<div class="dashboard-stats">
+  <div class="stat-card">
+    <h4>Anomalías encontradas en el consumo</h4>
+    <div class="value">3</div>
+    <div class="trend">
+      <i class="fas fa-arrow-down trend-down"></i> Última semana
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <h4>Dinero ahorrado</h4>
+    <div class="value">$1,250.00</div>
+    <div class="trend">
+      <i class="fas fa-arrow-up trend-up"></i> Este mes
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <h4>Precisión del combustible</h4>
+    <div class="value">97.5%</div>
+            <div class="meter-container">
+              <div class="meter-fill" style="width: 10%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="monitoring-content">
+          <h3>Monitoreo en el sector de:</h3>
+          <p>
+            En esta parte irá una breve descripción en base a la sección elegida por el usuario, como por ejemplo "el área logística".
+          </p>
+
+          <h3>¿Qué hacemos dentro de la aplicación?</h3>
+          <p>El sistema toma como métricas los siguientes datos del dataset:</p>
+          <ul>
+            <li>Eficiencia (Km por galón)</li>
+            <li>Costo por kilómetro</li>
+            <li>Cantidad de galones consumidos</li>
+            <li>Combustible dispensado: Lo que reporta la bomba</li>
+            <li>Combustible real: Lo que realmente entra al tanque del vehículo</li>
+          </ul>
+
+          <h3>Detección de fraude</h3>
+          <p>
+            Cuando se detectan discrepancias, nuestro sistema calcula una puntuación de probabilidad de fraude basada en datos históricos, información de ubicación y patrones conocidos de fraude. Recibirás alertas inmediatas cuando se detecte un posible fraude.
+          </p>
+
+          <h3>Recolección de datos</h3>
+          <p>
+            El sistema recopila de forma segura los datos de combustible a través de nuestra app móvil conectada al sistema de diagnóstico a bordo del vehículo. Esto permite una medición precisa sin requerir instalación de hardware adicional.
+          </p>
+
+          <h3>Beneficios</h3>
+          <p>Al usar nuestro sistema de monitoreo en vivo, puedes:</p>
+          <ul>
+            <li>Ahorrar dinero evitando estaciones fraudulentas</li>
+            <li>Contribuir a nuestra base de datos comunitaria sobre confiabilidad de estaciones</li>
+            <li>Recibir asistencia de compensación cuando se detecta fraude</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <div class="container"> 
+        <div class="footer-content">
+          <div class="footer-column">
+            <h3>Detección de Fraude de Combustible</h3>
+            <ul>
+              <li><a href="#about">Sobre nosotros</a></li>
+              <li><a href="#team">Nuestro equipo</a></li>
+              <li><a href="#technology">Nuestra tecnología</a></li>
+              <li><a href="#contact">Contacto</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Características</h3>
+          </div>
+          <div class="footer-column">
+            <h3>Recursos</h3>
+            <ul>
+              <li><a href="#blog">Blog de prevención de fraude</a></li>
+              <li><a href="#faq">Preguntas frecuentes</a></li>
+              <li><a href="#testimonials">Testimonios de usuarios</a></li>
+              <li><a href="#support">Centro de soporte</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h3>Contáctanos</h3>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      // Crear burbujas para el fondo
+      function createBubbles() {
+        const container = document.querySelector(".gas-bubbles");
+        const bubbleCount = 30;
+        for (let i = 0; i < bubbleCount; i++) {
+          const bubble = document.createElement("div");
+          bubble.classList.add("bubble");
+          const size = Math.floor(Math.random() * 40) + 10;
+          bubble.style.width = `${size}px`;
+          bubble.style.height = `${size}px`;
+          const left = Math.floor(Math.random() * 100);
+          bubble.style.left = `${left}%`;
+          const duration = Math.floor(Math.random() * 7) + 8;
+          bubble.style.animationDuration = `${duration}s`;
+          const delay = Math.random() * 8;
+          bubble.style.animationDelay = `${delay}s`;
+          container.appendChild(bubble);
+        }
+      }
+      createBubbles();
