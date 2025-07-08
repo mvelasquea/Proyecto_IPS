@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Análisis de Combustible - Municipalidad de Ate</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+      .module-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+      .module-card:hover {
+        transform: translateY(-5px);
+      }
+      .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .alert-item {
+        border-left: 4px solid #dc3545;
+      }
+      .progress-custom {
+        height: 8px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <i class="fas fa-gas-pump me-2"></i>
+          <span>Municipalidad de Ate - Análisis de Combustible</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="/sistema">
+                <i class="fas fa-gas-pump me-1"></i> Sistema Principal
+              </a>
+            </li>
+            <li class="nav-item position-relative">
+              <a class="nav-link" href="#" onclick="mostrarNotificaciones()">
+                <i class="fas fa-bell me-1"></i> Notificaciones
+                <span
+                  id="notificationBadge"
+                  class="notification-badge"
+                  style="display: none"
+                  >0</span
+                >
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown">
+                <i class="fas fa-user me-1"></i> {% if user %}{{ user.nombre
+                }}{% else %}Usuario{% endif %}
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-user-cog me-2"></i>Perfil</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()"
+                    ><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Encabezado principal -->
+    <header class="py-5 bg-light">
+      <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3">
+          Sistema Integral de Análisis de Combustible
+        </h1>
+        <p class="lead mb-4">
+          Optimice el uso de combustible con análisis avanzados, predicción IA,
+          alertas inteligentes y reportes detallados
+        </p>
+        <div class="row mt-4">
+          <div class="col-md-3">
+            <div class="card border-primary">
+              <div class="card-body text-center">
+                <i class="fas fa-database fa-2x text-primary mb-2"></i>
+                <h5 id="totalRegistros">0</h5>
+                <small class="text-muted">Registros Cargados</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-success">
+              <div class="card-body text-center">
+                <i class="fas fa-robot fa-2x text-success mb-2"></i>
+                <h5 id="modeloStatus">No Entrenado</h5>
+                <small class="text-muted">Modelo IA</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-warning">
+              <div class="card-body text-center">
+                <i
+                  class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                <h5 id="alertasActivas">0</h5>
+                <small class="text-muted">Alertas Activas</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-info">
+              <div class="card-body text-center">
+                <i class="fas fa-car fa-2x text-info mb-2"></i>
+                <h5 id="vehiculosTotal">0</h5>
+                <small class="text-muted">Vehículos</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="container my-5">
+      <!-- Carga de datos -->
+      <section class="mb-5">
+        <div class="card module-card">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+              <i class="fas fa-upload me-2"></i>Carga de Datos
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="fileInput" class="form-label"
+                    >Seleccionar archivo Excel</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="fileInput"
+                    accept=".xlsx,.xls" />
+                </div>
+                <button class="btn btn-primary" onclick="uploadFile()">
+                  <i class="fas fa-cloud-upload-alt me-2"></i>Cargar Archivo
+                </button>
+                <button
+                  class="btn btn-success ms-2"
+                  onclick="procesarAutomatico()">
+                  <i class="fas fa-cogs me-2"></i>Procesar Automáticamente
+                </button>
+              </div>
+              <div class="col-md-6">
+                <div
+                  id="uploadProgress"
+                  class="progress progress-custom mb-3"
+                  style="display: none">
+                  <div
+                    class="progress-bar"
+                    role="progressbar"
+                    style="width: 0%"></div>
+                </div>
+                <div
+                  id="uploadResult"
+                  class="alert"
+                  style="display: none"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Módulos principales -->
+      <section class="row">
+        <!-- Análisis Tradicional -->
+        <div class="col-md-6 mb-4">
+          <div class="card module-card h-100">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-chart-line me-2"></i>Análisis Tradicional
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Mes</label>
+                  <select class="form-select" id="mesSelect">
+                    <option value="">Seleccionar mes</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Dependencia</label>
+                  <select class="form-select" id="dependenciaSelect">
+                    <option value="">Seleccionar dependencia</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-success" onclick="analizarDatos()">
+                <i class="fas fa-analytics me-2"></i>Analizar Datos
+              </button>
+              <button
+                class="btn btn-outline-success"
+                onclick="descargarReporte()"
+                id="downloadBtn"
+                style="display: none">
+                <i class="fas fa-download me-2"></i>Descargar Reporte
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Predicción con IA -->
+        <div class="col-md-6 mb-4">
+          <div class="card module-card h-100">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-brain me-2"></i>Predicción con IA
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <button class="btn btn-info" onclick="entrenarModelo()">
+                  <i class="fas fa-robot me-2"></i>Entrenar Modelo
+                </button>
+                <button
+                  class="btn btn-outline-info"
+                  onclick="mostrarPrediccion()">
+                  <i class="fas fa-crystal-ball me-2"></i>Predecir Consumo
+                </button>
+              </div>
+              <div class="mb-3">
+                <button
+                  class="btn btn-outline-info"
+                  onclick="analizarTendencias()">
+                  <i class="fas fa-chart-line me-2"></i>Analizar Tendencias
+                </button>
+              </div>
+              <div
+                id="prediccionResult"
+                class="alert"
+                style="display: none"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sistema de Alertas -->
+        <div class="col-md-6 mb-4">
+          <div class="card module-card h-100">
+            <div class="card-header bg-warning text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-bell me-2"></i>Sistema de Alertas
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <button class="btn btn-warning" onclick="configurarAlerta()">
+                  <i class="fas fa-cog me-2"></i>Configurar Alerta
+                </button>
+                <button
+                  class="btn btn-outline-warning"
+                  onclick="verificarAlertas()">
+                  <i class="fas fa-search me-2"></i>Verificar Alertas
+                </button>
+              </div>
+              <div class="mb-3">
+                <button
+                  class="btn btn-outline-warning"
+                  onclick="listarAlertas()">
+                  <i class="fas fa-list me-2"></i>Ver Alertas Configuradas
+                </button>
+              </div>
+              <div id="alertasContainer" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros Avanzados -->
+        <div class="col-md-6 mb-4">
+          <div class="card module-card h-100">
+            <div class="card-header bg-secondary text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>Filtros Avanzados
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <button class="btn btn-secondary" onclick="mostrarFiltros()">
+                  <i class="fas fa-sliders-h me-2"></i>Aplicar Filtros
+                </button>
+                <button
+                  class="btn btn-outline-secondary"
+                  onclick="exportarDatos()">
+                  <i class="fas fa-file-export me-2"></i>Exportar Datos
+                </button>
+              </div>
+              <div id="filtrosResult" class="alert" style="display: none"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Análisis de Emisiones -->
+        <div class="col-md-6 mb-4">
+          <div class="card module-card h-100">
+            <div class="card-header bg-danger text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-leaf me-2"></i>Análisis de Emisiones
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <button class="btn btn-danger" onclick="calcularEmisiones()">
+                  <i class="fas fa-calculator me-2"></i>Calcular Emisiones
+                </button>
+                <button
+                  class="btn btn-outline-danger"
+                  onclick="reporteEmisiones()">
+                  <i class="fas fa-file-pdf me-2"></i>Reporte Emisiones
+                </button>
+              </div>
+              <div
+                id="emisionesResult"
+                class="alert"
+                style="display: none"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historial y Búsqueda -->
+        <div class="col-md-6 mb-4">
+          <div class="card module-card h-100">
+            <div class="card-header bg-dark text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-history me-2"></i>Historial y Búsqueda
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <button class="btn btn-dark" onclick="buscarHistorial()">
+                  <i class="fas fa-search me-2"></i>Buscar en Historial
+                </button>
+                <button
+                  class="btn btn-outline-dark"
+                  onclick="mostrarNotificaciones()">
+                  <i class="fas fa-bell me-2"></i>Ver Notificaciones
+                </button>
+              </div>
+              <div
+                id="historialResult"
+                class="alert"
+                style="display: none"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Área de resultados -->
+      <section class="mt-5">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-chart-bar me-2"></i>Resultados del Análisis
+            </h5>
+          </div>
+          <div class="card-body">
+            <div id="analysisResult" class="row" style="display: none">
+              <div class="col-md-4">
+                <h6>Estadísticas Generales</h6>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex justify-content-between">
+                    <span>Total Registros:</span>
+                    <strong id="totalRegistrosAnalisis">0</strong>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between">
+                    <span>Total Galones:</span>
+                    <strong id="totalGalones">0</strong>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between">
+                    <span>Total Consumo:</span>
+                    <strong id="totalConsumo">0</strong>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between">
+                    <span>Anomalías:</span>
+                    <strong id="totalAnomalias" class="text-danger">0</strong>
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-8">
+                <h6>Gráfico de Consumo Diario</h6>
+                <canvas id="consumoChart" width="400" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modales -->
+    <!-- Modal para Configurar Alerta -->
+    <div class="modal fade" id="alertaModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Configurar Alerta</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Tipo de Alerta</label>
+              <select class="form-select" id="tipoAlerta">
+                <option value="exceso_consumo">Exceso de Consumo</option>
+                <option value="mantenimiento">Mantenimiento Preventivo</option>
+                <option value="anomalia">Detección de Anomalías</option>
+                <option value="fin_semana">Consumo en Fin de Semana</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Umbral</label>
+              <input
+                type="number"
+                class="form-control"
+                id="umbralAlerta"
+                placeholder="Valor del umbral" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descripción</label>
+              <textarea
+                class="form-control"
+                id="descripcionAlerta"
+                rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="guardarAlerta()">
+              Guardar Alerta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Filtros Avanzados -->
+    <div class="modal fade" id="filtrosModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Filtros Avanzados</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Fecha Inicio</label>
+                  <input type="date" class="form-control" id="fechaInicio" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Fecha Fin</label>
+                  <input type="date" class="form-control" id="fechaFin" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Dependencia</label>
+                  <select class="form-select" id="dependenciaFiltro">
+                    <option value="">Todas las dependencias</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Consumo Mínimo</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="consumoMinimo"
+                    placeholder="Galones" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Consumo Máximo</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="consumoMaximo"
+                    placeholder="Galones" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Solo Anomalías</label>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="soloAnomalias" />
+                    <label class="form-check-label" for="soloAnomalias">
+                      Mostrar solo registros con anomalías
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="aplicarFiltrosAvanzados()">
+              Aplicar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      let currentReportFile = null;
+      let chartInstance = null;
+
+      // Inicializar al cargar la página
+      document.addEventListener("DOMContentLoaded", function () {
+        cargarResumenSistema();
+        cargarNotificaciones();
+      });
+
+      // Función para cargar resumen del sistema
+      function cargarResumenSistema() {
+        fetch("/resumen-sistema")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const resumen = data.resumen;
+              document.getElementById("totalRegistros").textContent =
+                resumen.registros_total;
+              document.getElementById("modeloStatus").textContent =
+                resumen.modelo_entrenado ? "Entrenado" : "No Entrenado";
+              document.getElementById("alertasActivas").textContent =
+                resumen.alertas_configuradas;
+              document.getElementById("vehiculosTotal").textContent =
+                resumen.vehiculos_total || 0;
+
+              // Actualizar selects si hay datos
+              if (resumen.dependencias_disponibles) {
+                const dependenciaSelect =
+                  document.getElementById("dependenciaSelect");
+                const dependenciaFiltro =
+                  document.getElementById("dependenciaFiltro");
+
+                resumen.dependencias_disponibles.forEach((dep) => {
+                  const option1 = new Option(dep, dep);
+                  const option2 = new Option(dep, dep);
+                  dependenciaSelect.add(option1);
+                  dependenciaFiltro.add(option2);
+                });
+              }
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      // Función para cargar notificaciones
+      function cargarNotificaciones() {
+        fetch("/historial/notificaciones")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const pendientes = data.notificaciones.filter(
+                (n) => !n.leida
+              ).length;
+              const badge = document.getElementById("notificationBadge");
+              if (pendientes > 0) {
+                badge.textContent = pendientes;
+                badge.style.display = "flex";
+              }
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      // Función para subir archivo
+      function uploadFile() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+
+        if (!file) {
+          alert("Por favor seleccione un archivo");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const progress = document.getElementById("uploadProgress");
+        const result = document.getElementById("uploadResult");
+
+        progress.style.display = "block";
+        result.style.display = "none";
+
+        fetch("/upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            progress.style.display = "none";
+            result.style.display = "block";
+
+            if (data.success) {
+              result.className = "alert alert-success";
+              result.textContent = "Archivo cargado exitosamente";
+
+              // Cargar opciones en selects
+              const mesSelect = document.getElementById("mesSelect");
+              const dependenciaSelect =
+                document.getElementById("dependenciaSelect");
+
+              mesSelect.innerHTML = '<option value="">Seleccionar mes</option>';
+              dependenciaSelect.innerHTML =
+                '<option value="">Seleccionar dependencia</option>';
+
+              data.meses.forEach((mes) => {
+                mesSelect.add(new Option(mes, mes));
+              });
+
+              data.dependencias.forEach((dep) => {
+                dependenciaSelect.add(new Option(dep, dep));
+              });
+
+              // Actualizar resumen
+              cargarResumenSistema();
+            } else {
+              result.className = "alert alert-danger";
+              result.textContent = data.error || "Error al cargar el archivo";
+            }
+          })
+          .catch((error) => {
+            progress.style.display = "none";
+            result.style.display = "block";
+            result.className = "alert alert-danger";
+            result.textContent = "Error de conexión";
+          });
+      }
+
+      // Función para procesar automáticamente
+      function procesarAutomatico() {
+        fetch("/procesar-automatico", {
+          method: "POST",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Procesamiento automático completado");
+              cargarResumenSistema();
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para analizar datos
+      function analizarDatos() {
+        const mes = document.getElementById("mesSelect").value;
+        const dependencia = document.getElementById("dependenciaSelect").value;
+
+        if (!mes || !dependencia) {
+          alert("Por favor seleccione mes y dependencia");
+          return;
+        }
+
+        fetch("/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ mes, dependencia }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              mostrarResultados(data);
+              currentReportFile = data.report_filename;
+              document.getElementById("downloadBtn").style.display =
+                "inline-block";
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para mostrar resultados
+      function mostrarResultados(data) {
+        const analysisResult = document.getElementById("analysisResult");
+        analysisResult.style.display = "block";
+
+        // Actualizar estadísticas
+        document.getElementById("totalRegistrosAnalisis").textContent =
+          data.stats.total_registros;
+        document.getElementById("totalGalones").textContent =
+          data.stats.total_galones.toFixed(2);
+        document.getElementById("totalConsumo").textContent =
+          data.stats.total_consumo.toFixed(2);
+        document.getElementById("totalAnomalias").textContent =
+          data.stats.total_anomalias;
+
+        // Crear gráfico
+        if (data.graficos && data.graficos.consumo_diario) {
+          crearGrafico(data.graficos.consumo_diario);
+        }
+      }
+
+      // Función para crear gráfico
+      function crearGrafico(consumoData) {
+        const ctx = document.getElementById("consumoChart").getContext("2d");
+
+        if (chartInstance) {
+          chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: consumoData.labels,
+            datasets: [
+              {
+                label: "Consumo por Día",
+                data: consumoData.data,
+                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+      }
+
+      // Función para descargar reporte
+      function descargarReporte() {
+        if (currentReportFile) {
+          window.open("/download/" + currentReportFile, "_blank");
+        }
+      }
+
+      // Función para entrenar modelo
+      function entrenarModelo() {
+        fetch("/prediccion/entrenar", {
+          method: "POST",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const result = document.getElementById("prediccionResult");
+            result.style.display = "block";
+
+            if (data.success) {
+              result.className = "alert alert-success";
+              result.innerHTML = `
+                        <strong>Modelo entrenado exitosamente!</strong><br>
+                        Precisión: ${(data.metricas.r2_score * 100).toFixed(
+                          2
+                        )}%<br>
+                        Error promedio: ${data.metricas.mae.toFixed(2)}
+                    `;
+              cargarResumenSistema();
+            } else {
+              result.className = "alert alert-danger";
+              result.textContent = data.error;
+            }
+          })
+          .catch((error) => {
+            const result = document.getElementById("prediccionResult");
+            result.style.display = "block";
+            result.className = "alert alert-danger";
+            result.textContent = "Error de conexión";
+          });
+      }
+
+      // Función para mostrar predicción
+      function mostrarPrediccion() {
+        const placa = prompt("Ingrese la placa del vehículo:");
+        const fechaInicio = prompt("Fecha inicio (YYYY-MM-DD):");
+        const fechaFin = prompt("Fecha fin (YYYY-MM-DD):");
+
+        if (placa && fechaInicio && fechaFin) {
+          fetch("/prediccion/predecir", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              placa,
+              fecha_inicio: fechaInicio,
+              fecha_fin: fechaFin,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                const prediccion = data.prediccion;
+                alert(
+                  `Predicción para ${placa}:\nConsumo estimado: ${prediccion.consumo_estimado.toFixed(
+                    2
+                  )} galones\nConfianza: ${(prediccion.confianza * 100).toFixed(
+                    1
+                  )}%`
+                );
+              } else {
+                alert("Error: " + data.error);
+              }
+            })
+            .catch((error) => alert("Error de conexión"));
+        }
+      }
+
+      // Función para analizar tendencias
+      function analizarTendencias() {
+        const dependencia = prompt(
+          "Ingrese la dependencia (o deje vacío para todas):"
+        );
+
+        fetch("/prediccion/analizar-tendencias", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ dependencia }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const tendencias = data.tendencias;
+              alert(
+                `Tendencias de consumo:\nTendencia general: ${
+                  tendencias.tendencia_general
+                }\nVariación mensual: ${tendencias.variacion_mensual.toFixed(
+                  2
+                )}%\nPatrones identificados: ${
+                  tendencias.patrones_identificados
+                }`
+              );
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para configurar alerta
+      function configurarAlerta() {
+        const modal = new bootstrap.Modal(
+          document.getElementById("alertaModal")
+        );
+        modal.show();
+      }
+
+      // Función para guardar alerta
+      function guardarAlerta() {
+        const tipo = document.getElementById("tipoAlerta").value;
+        const umbral = document.getElementById("umbralAlerta").value;
+        const descripcion = document.getElementById("descripcionAlerta").value;
+
+        const parametros = {
+          umbral: parseFloat(umbral),
+          descripcion: descripcion,
+        };
+
+        fetch("/alertas/configurar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ tipo, parametros }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Alerta configurada exitosamente");
+              bootstrap.Modal.getInstance(
+                document.getElementById("alertaModal")
+              ).hide();
+              cargarResumenSistema();
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para verificar alertas
+      function verificarAlertas() {
+        fetch("/alertas/verificar", {
+          method: "POST",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const container = document.getElementById("alertasContainer");
+              container.innerHTML = "";
+
+              if (data.alertas.length > 0) {
+                data.alertas.forEach((alerta) => {
+                  const alertElement = document.createElement("div");
+                  alertElement.className =
+                    "alert alert-warning alert-item mb-2";
+                  alertElement.innerHTML = `
+                                <strong>${alerta.tipo}</strong><br>
+                                ${alerta.mensaje}<br>
+                                <small class="text-muted">${alerta.fecha}</small>
+                            `;
+                  container.appendChild(alertElement);
+                });
+              } else {
+                container.innerHTML =
+                  '<div class="alert alert-info">No hay alertas activas</div>';
+              }
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para listar alertas
+      function listarAlertas() {
+        fetch("/alertas/listar")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              let mensaje = "Alertas configuradas:\n\n";
+              data.alertas.forEach((alerta) => {
+                mensaje += `- ${alerta.tipo}: ${alerta.descripcion}\n`;
+              });
+              alert(mensaje || "No hay alertas configuradas");
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para mostrar filtros
+      function mostrarFiltros() {
+        const modal = new bootstrap.Modal(
+          document.getElementById("filtrosModal")
+        );
+        modal.show();
+      }
+
+      // Función para aplicar filtros avanzados
+      function aplicarFiltrosAvanzados() {
+        const filtros = {
+          fecha_inicio: document.getElementById("fechaInicio").value,
+          fecha_fin: document.getElementById("fechaFin").value,
+          dependencia: document.getElementById("dependenciaFiltro").value,
+          consumo_minimo: document.getElementById("consumoMinimo").value,
+          consumo_maximo: document.getElementById("consumoMaximo").value,
+          solo_anomalias: document.getElementById("soloAnomalias").checked,
+        };
+
+        fetch("/filtros/aplicar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ filtros }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const result = document.getElementById("filtrosResult");
+              result.style.display = "block";
+              result.className = "alert alert-success";
+              result.innerHTML = `
+                        <strong>Filtros aplicados exitosamente</strong><br>
+                        Registros filtrados: ${data.total_filtrados}<br>
+                        Total galones: ${data.stats.total_galones.toFixed(
+                          2
+                        )}<br>
+                        Vehículos únicos: ${data.stats.vehiculos_unicos}
+                    `;
+              bootstrap.Modal.getInstance(
+                document.getElementById("filtrosModal")
+              ).hide();
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para exportar datos
+      function exportarDatos() {
+        const filtros = {}; // Usar filtros por defecto o los últimos aplicados
+
+        fetch("/filtros/exportar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ filtros }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Datos exportados exitosamente: " + data.archivo);
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para calcular emisiones
+      function calcularEmisiones() {
+        const placa = prompt("Ingrese la placa del vehículo:");
+        const fechaInicio = prompt("Fecha inicio (YYYY-MM-DD):");
+        const fechaFin = prompt("Fecha fin (YYYY-MM-DD):");
+
+        if (placa && fechaInicio && fechaFin) {
+          fetch("/emisiones/calcular", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              placa,
+              fecha_inicio: fechaInicio,
+              fecha_fin: fechaFin,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                const emisiones = data.emisiones;
+                const result = document.getElementById("emisionesResult");
+                result.style.display = "block";
+                result.className = "alert alert-info";
+                result.innerHTML = `
+                            <strong>Emisiones de ${placa}:</strong><br>
+                            CO2: ${emisiones.co2_total.toFixed(2)} kg<br>
+                            CO2 por kilómetro: ${emisiones.co2_por_km.toFixed(
+                              3
+                            )} kg/km<br>
+                            Eficiencia: ${emisiones.eficiencia.toFixed(
+                              2
+                            )} km/galón
+                        `;
+              } else {
+                alert("Error: " + data.error);
+              }
+            })
+            .catch((error) => alert("Error de conexión"));
+        }
+      }
+
+      // Función para reporte de emisiones
+      function reporteEmisiones() {
+        const dependencia = prompt("Ingrese la dependencia:");
+        const fechaInicio = prompt("Fecha inicio (YYYY-MM-DD):");
+        const fechaFin = prompt("Fecha fin (YYYY-MM-DD):");
+
+        if (dependencia && fechaInicio && fechaFin) {
+          fetch("/emisiones/reporte", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              dependencia,
+              fecha_inicio: fechaInicio,
+              fecha_fin: fechaFin,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                alert("Reporte de emisiones generado: " + data.archivo);
+                // Opcionalmente, abrir el archivo
+                window.open("/emisiones/download/" + data.archivo, "_blank");
+              } else {
+                alert("Error: " + data.error);
+              }
+            })
+            .catch((error) => alert("Error de conexión"));
+        }
+      }
+
+      // Función para buscar historial
+      function buscarHistorial() {
+        const criterio = prompt("Ingrese criterio de búsqueda:");
+
+        if (criterio) {
+          fetch("/historial/buscar", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ criterios: { texto: criterio } }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                const result = document.getElementById("historialResult");
+                result.style.display = "block";
+                result.className = "alert alert-info";
+                result.innerHTML = `
+                            <strong>Resultados de búsqueda:</strong><br>
+                            Se encontraron ${data.resultados.length} registros
+                        `;
+              } else {
+                alert("Error: " + data.error);
+              }
+            })
+            .catch((error) => alert("Error de conexión"));
+        }
+      }
+
+      // Función para mostrar notificaciones
+      function mostrarNotificaciones() {
+        fetch("/historial/notificaciones")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              let mensaje = "Notificaciones:\n\n";
+              data.notificaciones.forEach((notif) => {
+                mensaje += `- ${notif.tipo}: ${notif.mensaje}\n`;
+              });
+              alert(mensaje || "No hay notificaciones");
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => alert("Error de conexión"));
+      }
+
+      // Función para logout
+      function logout() {
+        if (confirm("¿Está seguro que desea cerrar sesión?")) {
+          window.location.href = "/auth/logout";
+        }
+      }
+    </script>
+  </body>
+</html>

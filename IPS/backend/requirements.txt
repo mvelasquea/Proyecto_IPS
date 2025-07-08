@@ -1,0 +1,9 @@
+flask
+pandas
+scikit-learn
+openpyxl
+xlrd
+numpy
+matplotlib
+seaborn
+fpdf2

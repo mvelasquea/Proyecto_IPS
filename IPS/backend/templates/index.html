@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Análisis de Combustible - Municipalidad de Ate</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <i class="fas fa-gas-pump me-2"></i>
+          <span>Municipalidad de Ate - Análisis de Combustible</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a
+                class="nav-link {% if not seccion or seccion == 'sistema' %}active{% endif %}"
+                href="/sistema"
+                ><i class="fas fa-gas-pump me-1"></i> Análisis Combustible</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion == 'reportes' %}active{% endif %}"
+                href="/reportes"
+                ><i class="fas fa-chart-bar me-1"></i> Reportes</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if seccion == 'historial' %}active{% endif %}"
+                href="/historial"
+                ><i class="fas fa-history me-1"></i> Historial</a
+              >
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown">
+                <i class="fas fa-user me-1"></i> {% if user %}{{ user.nombre
+                }}{% else %}Usuario{% endif %}
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-user-cog me-2"></i>Perfil</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()"
+                    ><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Encabezado principal -->
+    <header class="py-5 bg-light">
+      <div class="container text-center">
+        {% if seccion == 'reportes' %}
+        <h1 class="display-4 fw-bold mb-3">
+          <i class="fas fa-chart-bar me-2"></i>Reportes del Sistema
+        </h1>
+        <p class="lead mb-4">
+          Visualice y descargue reportes detallados del análisis de combustible
+        </p>
+        {% elif seccion == 'historial' %}
+        <h1 class="display-4 fw-bold mb-3">
+          <i class="fas fa-history me-2"></i>Historial de Análisis
+        </h1>
+        <p class="lead mb-4">
+          Revise el historial de análisis realizados y notificaciones del
+          sistema
+        </p>
+        {% else %}
+        <h1 class="display-4 fw-bold mb-3">
+          Sistema de Análisis de Consumo de Combustible
+        </h1>
+        <p class="lead mb-4">
+          Optimice el uso de combustible de su flota vehicular con análisis
+          avanzados y detección de anomalías
+        </p>
+        {% endif %} {% if not seccion or seccion == 'sistema' %}
+        <div class="d-flex justify-content-center gap-3">
+          <button class="btn btn-primary btn-lg px-4">
+            <i class="fas fa-play me-2"></i>Iniciar Análisis
+          </button>
+          <button class="btn btn-outline-dark btn-lg px-4">
+            <i class="fas fa-download me-2"></i>Descargar Reporte
+          </button>
+        </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Contenido específico por sección -->
+    {% if seccion == 'reportes' %}
+    <!-- Sección de Reportes -->
+    <section class="py-5">
+      <div class="container">
+        {% if mensaje %}
+        <div class="alert alert-warning text-center">
+          <i class="fas fa-exclamation-triangle me-2"></i>{{ mensaje }}
+        </div>
+        {% else %}
+        <div class="row">
+          <div class="col-12">
+            <h3 class="mb-4">Reportes Disponibles</h3>
+          </div>
+          {% if reportes %} {% for reporte in reportes %}
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <div class="card-body text-center">
+                <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">{{ reporte.nombre }}</h5>
+                <button class="btn btn-primary">
+                  <i class="fas fa-download me-2"></i>Descargar
+                </button>
+              </div>
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <div class="col-12">
+            <div class="alert alert-info text-center">
+              <i class="fas fa-info-circle me-2"></i>No hay reportes
+              disponibles.
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    {% elif seccion == 'historial' %}
+    <!-- Sección de Historial -->
+    <section class="py-5">
+      <div class="container">
+        {% if mensaje %}
+        <div class="alert alert-warning text-center">
+          <i class="fas fa-exclamation-triangle me-2"></i>{{ mensaje }}
+        </div>
+        {% else %}
+        <div class="row">
+          <div class="col-md-8">
+            <h3 class="mb-4">Historial de Análisis</h3>
+            {% if historial %}
+            <div class="list-group">
+              {% for item in historial %}
+              <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">Análisis realizado</h6>
+                  <small>{{ item.fecha_busqueda }}</small>
+                </div>
+                <p class="mb-1">Filtros: {{ item.filtros }}</p>
+                <small
+                  >Registros encontrados: {{ item.resultados_encontrados
+                  }}</small
+                >
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>No hay historial
+              disponible.
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-md-4">
+            <h3 class="mb-4">Notificaciones</h3>
+            {% if notificaciones %}
+            <div class="list-group">
+              {% for notif in notificaciones %}
+              <div class="list-group-item">
+                <h6 class="mb-1">{{ notif.titulo }}</h6>
+                <p class="mb-1">{{ notif.mensaje }}</p>
+                <small>{{ notif.fecha_creacion }}</small>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>No hay notificaciones.
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    {% else %}
+    <!-- Proceso de análisis (sección por defecto) -->
+    <section class="py-5">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-12 text-center">
+            <h2 class="section-title d-inline-block">
+              Proceso de Análisis en 3 Pasos
+            </h2>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Paso 1: Cargar datos -->
+          <div class="col-md-4">
+            <div class="card step-card h-100">
+              <div class="number">1</div>
+              <h4>Cargar Datos</h4>
+              <p>
+                Suba el archivo Excel con los datos de consumo de combustible
+              </p>
+              <div class="file-upload mt-3" id="fileUploadArea">
+                <i class="fas fa-file-excel"></i>
+                <p>Haga clic o arrastre su archivo Excel aquí</p>
+                <small class="text-muted"
+                  >Formatos soportados: .xlsx, .xls</small
+                >
+                <input
+                  type="file"
+                  id="fileInput"
+                  class="d-none"
+                  accept=".xlsx,.xls" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 2: Seleccionar parámetros -->
+          <div class="col-md-4">
+            <div class="card step-card h-100">
+              <div class="number">2</div>
+              <h4>Configurar Análisis</h4>
+              <p>Seleccione el mes y la dependencia a analizar</p>
+
+              <div class="mt-4">
+                <div class="mb-3">
+                  <label class="form-label">Seleccionar Mes</label>
+                  <select class="form-select" id="mesSelect">
+                    <option value="">-- Seleccione un mes --</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Seleccionar Dependencia</label>
+                  <select class="form-select" id="dependenciaSelect">
+                    <option value="">-- Seleccione una dependencia --</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 3: Ver resultados -->
+          <div class="col-md-4">
+            <div class="card step-card h-100">
+              <div class="number">3</div>
+              <h4>Obtener Resultados</h4>
+              <p>
+                Revise los análisis, gráficos y reporte de anomalías generados
+              </p>
+              <button class="btn btn-primary w-100 mt-4" id="btnGenerate">
+                <i class="fas fa-chart-line me-2"></i>Generar Reporte
+              </button>
+              <div class="loading mt-4 d-none" id="loadingSpinner">
+                <div class="spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Resultados del análisis (oculto inicialmente) -->
+    <section class="py-5 bg-light" id="resultsSection" style="display: none">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2 class="section-title">Resultados del Análisis</h2>
+            <p class="text-muted" id="analysisInfo">
+              Análisis para: <strong id="dependenciaInfo"></strong> | Mes:
+              <strong id="mesInfo"></strong>
+            </p>
+          </div>
+        </div>
+
+        <!-- Estadísticas principales -->
+        <div class="row mb-5" id="statsRow">
+          <!-- Se llenará dinámicamente -->
+        </div>
+
+        <!-- Gráficos y visualizaciones -->
+        <div class="row" id="chartsRow">
+          <!-- Se llenará dinámicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Detección de anomalías (oculto inicialmente) -->
+    <section class="py-5" id="anomaliesSection" style="display: none">
+      <div class="container">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2 class="section-title">Detección de Anomalías</h2>
+            <p class="text-muted">
+              Registros con patrones de consumo inusuales detectados por nuestro
+              sistema
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-exclamation-circle me-2"></i>Resumen de
+                Anomalías
+              </div>
+              <div class="card-body" id="anomaliesSummary">
+                <!-- Se llenará dinámicamente -->
+              </div>
+            </div>
+
+            <div class="card mt-4">
+              <div class="card-header">
+                <i class="fas fa-car me-2"></i>Vehículos con Más Anomalías
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover" id="vehiclesTable">
+                    <!-- Se llenará dinámicamente -->
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <i class="fas fa-list me-2"></i>Anomalías Recientes
+              </div>
+              <div class="card-body" id="anomaliesList">
+                <!-- Se llenará dinámicamente -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4 mb-4">
+            <h4 class="mb-4">Municipalidad de Ate</h4>
+            <p>Sistema de Análisis de Consumo de Combustible</p>
+            <p>Optimizando recursos para un servicio público eficiente</p>
+          </div>
+          <div class="col-md-4 mb-4">
+            <h4 class="mb-4">Contacto</h4>
+            <p>
+              <i class="fas fa-map-marker-alt me-2"></i> Av. Nicolás Ayllón 395,
+              Ate
+            </p>
+            <p><i class="fas fa-phone me-2"></i> (01) 123-4567</p>
+            <p>
+              <i class="fas fa-envelope me-2"></i> transporte@muniate.gob.pe
+            </p>
+          </div>
+          <div class="col-md-4 mb-4">
+            <h4 class="mb-4">Enlaces Rápidos</h4>
+            <ul class="list-unstyled">
+              <li>
+                <a href="#" class="text-white"
+                  ><i class="fas fa-chevron-right me-2"></i>Documentación</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-white"
+                  ><i class="fas fa-chevron-right me-2"></i>Manual de Usuario</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-white"
+                  ><i class="fas fa-chevron-right me-2"></i>Preguntas
+                  Frecuentes</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-white"
+                  ><i class="fas fa-chevron-right me-2"></i>Soporte Técnico</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <hr class="bg-light" />
+        <div class="row">
+          <div class="col-12 text-center">
+            <p class="mb-0">
+              © 2023 Municipalidad de Ate. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+      // Función para cerrar sesión
+      function logout() {
+        fetch("/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.href = "/";
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            window.location.href = "/";
+          });
+      }
+    </script>
+  </body>
+</html>

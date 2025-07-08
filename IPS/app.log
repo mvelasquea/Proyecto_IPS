@@ -1,0 +1,35 @@
+2025-07-07 20:48:39,250 - __main__ - INFO - === SISTEMA DE ANÁLISIS DE COMBUSTIBLE ===
+2025-07-07 20:48:39,251 - __main__ - INFO - Municipalidad de Ate
+2025-07-07 20:48:39,251 - __main__ - INFO - Configuración: development
+2025-07-07 20:48:39,251 - __main__ - INFO - Debug: True
+2025-07-07 20:48:39,251 - __main__ - INFO - Servidor: http://0.0.0.0:5000
+2025-07-07 20:48:39,252 - __main__ - INFO - Directorios verificados/creados
+2025-07-07 20:48:39,253 - __main__ - INFO - Iniciando servidor Flask...
+2025-07-07 20:48:39,262 - werkzeug - WARNING -  * Debugger is active!
+2025-07-07 20:48:39,265 - werkzeug - INFO -  * Debugger PIN: 188-030-987
+2025-07-07 20:49:17,202 - __main__ - INFO - === SISTEMA DE ANÁLISIS DE COMBUSTIBLE ===
+2025-07-07 20:49:17,203 - __main__ - INFO - Municipalidad de Ate
+2025-07-07 20:49:17,203 - __main__ - INFO - Configuración: development
+2025-07-07 20:49:17,203 - __main__ - INFO - Debug: True
+2025-07-07 20:49:17,203 - __main__ - INFO - Servidor: http://0.0.0.0:5000
+2025-07-07 20:49:17,205 - __main__ - INFO - Directorios verificados/creados
+2025-07-07 20:49:17,205 - __main__ - INFO - Iniciando servidor Flask...
+2025-07-07 20:49:17,226 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.182:5000
+2025-07-07 20:49:17,226 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-07 20:49:17,228 - werkzeug - INFO -  * Restarting with stat
+2025-07-07 20:49:19,954 - __main__ - INFO - === SISTEMA DE ANÁLISIS DE COMBUSTIBLE ===
+2025-07-07 20:49:19,954 - __main__ - INFO - Municipalidad de Ate
+2025-07-07 20:49:19,954 - __main__ - INFO - Configuración: development
+2025-07-07 20:49:19,955 - __main__ - INFO - Debug: True
+2025-07-07 20:49:19,955 - __main__ - INFO - Servidor: http://0.0.0.0:5000
+2025-07-07 20:49:19,956 - __main__ - INFO - Directorios verificados/creados
+2025-07-07 20:49:19,956 - __main__ - INFO - Iniciando servidor Flask...
+2025-07-07 20:49:19,964 - werkzeug - WARNING -  * Debugger is active!
+2025-07-07 20:49:19,969 - werkzeug - INFO -  * Debugger PIN: 188-030-987
+2025-07-07 20:50:23,111 - werkzeug - INFO - 127.0.0.1 - - [07/Jul/2025 20:50:23] "[33mGET / HTTP/1.1[0m" 404 -
+2025-07-07 20:50:39,439 - werkzeug - INFO -  * Detected change in 'C:\\Users\\Mikha\\OneDrive\\Desktop\\prueba IPS\\IPS\\backend\\config.py', reloading
+2025-07-07 20:50:39,803 - werkzeug - INFO -  * Restarting with stat
+2025-07-07 20:51:10,226 - werkzeug - INFO -  * Restarting with stat
